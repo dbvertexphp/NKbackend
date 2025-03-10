@@ -43,7 +43,15 @@ app.use('/api', imageRoutes);
 //Inquiries Routes
 app.use('/api', inquiryRoutes);
 
+
+const BASE_URL = process.env.BASE_URL;
+
+app.get("/", (req, res) => {
+	res.send("API is running..");
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+	console.log(`Base URL: ${BASE_URL}`);
 });
