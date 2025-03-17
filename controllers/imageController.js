@@ -16,7 +16,7 @@ const uploadHeroImage = async (req, res) => {
     const newImage = new Image({
       imageType: 'hero',
       filename: req.file.filename,
-      filepath: req.file.path, // Path where the image is saved on the server
+      filepath: `/uploads/backgroundimage/${req.file.filename}`, // ✅ Save Relative Path
       fileSize: req.file.size
     });
 
@@ -59,6 +59,32 @@ const getHeroImage = async (req, res) => {
   }
 };
 
+
+// get Backkground Image 
+const getBackgroundImage = async (req, res) => {
+  try {
+    const backgroundImage = await Image.findOne({ imageType: "background" });
+
+    if (!backgroundImage) {
+      return res.status(404).json({ message: "Background image not found" });
+    }
+
+    // Convert local file path to a public URL
+    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/backgroundimage/${path.basename(backgroundImage.filepath)}`;
+
+    res.json({
+      image: {
+        _id: backgroundImage._id,
+        filename: backgroundImage.filename,
+        filepath: imageUrl, // Return a public URL
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching background Image:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // Handle Background Image Upload (for first time)
 const uploadBackgroundImage = async (req, res) => {
   try {
@@ -71,7 +97,7 @@ const uploadBackgroundImage = async (req, res) => {
     const newImage = new Image({
       imageType: 'background',
       filename: req.file.filename,
-      filepath: req.file.path, // Path where the image is saved on the server
+      filepath: `/uploads/backgroundimage/${req.file.filename}`, // ✅ Save Relative Path
       fileSize: req.file.size
     });
 
@@ -89,6 +115,31 @@ const uploadBackgroundImage = async (req, res) => {
   }
 };
 
+
+// get Project Image 
+const getProjectImages = async (req, res) => {
+  try {
+    const projectImages = await Image.find({ imageType: "project" });
+
+    if (!projectImages || projectImages.length === 0) {
+      return res.status(404).json({ message: "No project images found" });
+    }
+
+    // Convert local file paths to public URLs
+    const images = projectImages.map((image) => ({
+      _id: image._id,
+      filename: image.filename,
+      filepath: `${req.protocol}://${req.get("host")}/uploads/projectimage/${path.basename(image.filepath)}`,
+    }));
+
+    res.json({ images });
+  } catch (error) {
+    console.error("Error fetching project images:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
 // Handle Project Image Upload (for first time)
 const uploadProjectImage = async (req, res) => {
   try {
@@ -101,7 +152,7 @@ const uploadProjectImage = async (req, res) => {
     const newImage = new Image({
       imageType: 'project',
       filename: req.file.filename,
-      filepath: req.file.path, // Path where the image is saved on the server
+      filepath:`/uploads/projectimage/${req.file.filename}`, // ✅ Save Relative Path
       fileSize: req.file.size
     });
 
@@ -272,5 +323,7 @@ module.exports = {
   updateBackgroundImage,
   updateProjectImage,
 	deleteProjectImage,
-	getHeroImage
+	getHeroImage,
+	getBackgroundImage,
+	getProjectImages
 };

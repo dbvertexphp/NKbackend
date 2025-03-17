@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { uploadHeroImage, getHeroImage, uploadBackgroundImage, uploadProjectImage, updateHeroImage, updateBackgroundImage, updateProjectImage, deleteProjectImage } = require('../controllers/imageController');
+const { uploadHeroImage, getHeroImage, getBackgroundImage, getProjectImages, uploadBackgroundImage, uploadProjectImage, updateHeroImage, updateBackgroundImage, updateProjectImage, deleteProjectImage } = require('../controllers/imageController');
 const upload = require('../middlewares/uploadMiddleware'); // Import multer middleware
 
 // Upload routes
@@ -10,6 +10,9 @@ router.post('/upload/project', upload.single('image'), uploadProjectImage); // P
 
 //get Image Routes
 router.get('/get/hero',  getHeroImage); // get Hero Image 
+router.get('/get/background',  getBackgroundImage);  // get Background Image
+router.get('/get/project',  getProjectImages);  // get Project Image
+
 
 // Update Routes
 router.put('/update/hero/:id', upload.single('image'), updateHeroImage);

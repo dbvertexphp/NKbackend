@@ -40,15 +40,16 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
-
+console.log(password);
     // Compare hashed password with the provided one
     const isPasswordValid = await bcrypt.compare(password, user.password);
+		console.log(isPasswordValid)
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     // Generate a JWT token if valid
-    const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id, role: user.role, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     // Send token back in the response
     res.status(200).json({ token });
@@ -58,4 +59,45 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, loginUser };
+
+const changePassword = async (req, res) => {
+  try {
+    // console.log("Request User:", req.user); // Debugging line
+
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: "Unauthorized: No user ID" });
+    }
+
+    const userId = req.user.id; // ✅ Now correctly accessing `id`
+    // console.log("User ID:", userId);
+
+    const { oldPassword, newPassword } = req.body;
+
+    // Find the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Check old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: "Old password is incorrect" });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+
+    // Save updated password
+    await user.save();
+
+    res.json({ success: true, message: "Password changed successfully" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
+module.exports = { createUser, loginUser, changePassword };

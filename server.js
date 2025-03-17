@@ -31,7 +31,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
+  .then(() => console.log('Connected to MongoDB', `${process.env.MONGODB_URI}`))
   .catch(err => console.log('Error connecting to MongoDB:', err));
 
 // User routes
