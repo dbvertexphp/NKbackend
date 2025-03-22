@@ -1,32 +1,31 @@
-const upload = require('../middlewares/uploadMiddleware'); // Import multer middleware
-const fs = require('fs');
-const path = require('path');
-const Image = require('../models/ImageModel'); // Import the Image model
-
+const upload = require("../middlewares/uploadMiddleware"); // Import multer middleware
+const fs = require("fs");
+const path = require("path");
+const Image = require("../models/ImageModel"); // Import the Image model
 
 // Handle Hero Image Upload (for first time)
 const uploadHeroImage = async (req, res) => {
   try {
     // Check if the file exists
     if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+      return res.status(400).json({ message: "No file uploaded" });
     }
 
     // Save image metadata to the database
     const newImage = new Image({
-      imageType: 'hero',
+      imageType: "hero",
       filename: req.file.filename,
       filepath: `/uploads/backgroundimage/${req.file.filename}`, // ✅ Save Relative Path
-      fileSize: req.file.size
+      fileSize: req.file.size,
     });
 
     // Save to database
     await newImage.save();
 
     res.status(200).json({
-      message: 'Hero image uploaded and saved to database successfully!',
+      message: "Hero image uploaded and saved to database successfully!",
       file: req.file,
-      image: newImage
+      image: newImage,
     });
   } catch (error) {
     console.error(error);
@@ -44,7 +43,9 @@ const getHeroImage = async (req, res) => {
     }
 
     // Convert local file path to a public URL
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/heroimage/${path.basename(heroImage.filepath)}`;
+    const imageUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/uploads/heroimage/${path.basename(heroImage.filepath)}`;
 
     res.json({
       image: {
@@ -59,8 +60,7 @@ const getHeroImage = async (req, res) => {
   }
 };
 
-
-// get Backkground Image 
+// get Backkground Image
 const getBackgroundImage = async (req, res) => {
   try {
     const backgroundImage = await Image.findOne({ imageType: "background" });
@@ -70,7 +70,9 @@ const getBackgroundImage = async (req, res) => {
     }
 
     // Convert local file path to a public URL
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/backgroundimage/${path.basename(backgroundImage.filepath)}`;
+    const imageUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/uploads/backgroundimage/${path.basename(backgroundImage.filepath)}`;
 
     res.json({
       image: {
@@ -90,24 +92,24 @@ const uploadBackgroundImage = async (req, res) => {
   try {
     // Check if the file exists
     if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+      return res.status(400).json({ message: "No file uploaded" });
     }
 
     // Save image metadata to the database
     const newImage = new Image({
-      imageType: 'background',
+      imageType: "background",
       filename: req.file.filename,
       filepath: `/uploads/backgroundimage/${req.file.filename}`, // ✅ Save Relative Path
-      fileSize: req.file.size
+      fileSize: req.file.size,
     });
 
     // Save to database
     await newImage.save();
 
     res.status(200).json({
-      message: 'Background image uploaded and saved to database successfully!',
+      message: "Background image uploaded and saved to database successfully!",
       file: req.file,
-      image: newImage
+      image: newImage,
     });
   } catch (error) {
     console.error(error);
@@ -115,8 +117,7 @@ const uploadBackgroundImage = async (req, res) => {
   }
 };
 
-
-// get Project Image 
+// get Project Image
 const getProjectImages = async (req, res) => {
   try {
     const projectImages = await Image.find({ imageType: "project" });
@@ -129,7 +130,9 @@ const getProjectImages = async (req, res) => {
     const images = projectImages.map((image) => ({
       _id: image._id,
       filename: image.filename,
-      filepath: `${req.protocol}://${req.get("host")}/uploads/projectimage/${path.basename(image.filepath)}`,
+      filepath: `${req.protocol}://${req.get(
+        "host"
+      )}/uploads/projectimage/${path.basename(image.filepath)}`,
     }));
 
     res.json({ images });
@@ -139,30 +142,27 @@ const getProjectImages = async (req, res) => {
   }
 };
 
-
 // Handle Project Image Upload (for first time)
 const uploadProjectImage = async (req, res) => {
   try {
-    // Check if the file exists
     if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+      return res.status(400).json({ message: "No file uploaded" });
     }
-
     // Save image metadata to the database
     const newImage = new Image({
-      imageType: 'project',
+      imageType: "project",
       filename: req.file.filename,
-      filepath:`/uploads/projectimage/${req.file.filename}`, // ✅ Save Relative Path
-      fileSize: req.file.size
+      filepath: `/uploads/projectimage/${req.file.filename}`, // ✅ Save Relative Path
+      fileSize: req.file.size,
     });
 
     // Save to database
     await newImage.save();
 
     res.status(200).json({
-      message: 'Project image uploaded and saved to database successfully!',
+      message: "Project image uploaded and saved to database successfully!",
       file: req.file,
-      image: newImage
+      image: newImage,
     });
   } catch (error) {
     console.error(error);
@@ -172,9 +172,8 @@ const uploadProjectImage = async (req, res) => {
 
 const updateHeroImage = async (req, res) => {
   try {
-    // Check if the file exists
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+		if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
     }
 
     // Get the image ID from the URL params
@@ -185,13 +184,13 @@ const updateHeroImage = async (req, res) => {
 
     // If no existing image is found, return an error
     if (!existingImage) {
-      return res.status(404).json({ message: 'Image not found' });
+      return res.status(404).json({ message: "Image not found" });
     }
 
     // Delete the old image file from the server
     const oldImagePath = path.join(__dirname, `../${existingImage.filepath}`);
     if (fs.existsSync(oldImagePath)) {
-      fs.unlinkSync(oldImagePath);  // Delete the old image file
+      fs.unlinkSync(oldImagePath); // Delete the old image file
     }
 
     // Update the image metadata in the database
@@ -204,9 +203,9 @@ const updateHeroImage = async (req, res) => {
 
     // Send a success response
     res.status(200).json({
-      message: 'Hero image updated successfully!',
+      message: "Hero image updated successfully!",
       file: req.file,
-      image: existingImage
+      image: existingImage,
     });
   } catch (error) {
     console.error(error);
@@ -217,15 +216,14 @@ const updateHeroImage = async (req, res) => {
 const updateBackgroundImage = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+      return res.status(400).json({ message: "No file uploaded" });
     }
-
     const { id } = req.params;
 
     const existingImage = await Image.findById(id);
 
     if (!existingImage) {
-      return res.status(404).json({ message: 'Image not found' });
+      return res.status(404).json({ message: "Image not found" });
     }
 
     const oldImagePath = path.join(__dirname, `../${existingImage.filepath}`);
@@ -240,9 +238,9 @@ const updateBackgroundImage = async (req, res) => {
     await existingImage.save();
 
     res.status(200).json({
-      message: 'Background image updated successfully!',
+      message: "Background image updated successfully!",
       file: req.file,
-      image: existingImage
+      image: existingImage,
     });
   } catch (error) {
     console.error(error);
@@ -250,19 +248,17 @@ const updateBackgroundImage = async (req, res) => {
   }
 };
 
-
 const updateProjectImage = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+		if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
     }
-
     const { id } = req.params;
 
     const existingImage = await Image.findById(id);
 
     if (!existingImage) {
-      return res.status(404).json({ message: 'Image not found' });
+      return res.status(404).json({ message: "Image not found" });
     }
 
     const oldImagePath = path.join(__dirname, `../${existingImage.filepath}`);
@@ -277,9 +273,9 @@ const updateProjectImage = async (req, res) => {
     await existingImage.save();
 
     res.status(200).json({
-      message: 'Project image updated successfully!',
+      message: "Project image updated successfully!",
       file: req.file,
-      image: existingImage
+      image: existingImage,
     });
   } catch (error) {
     console.error(error);
@@ -322,8 +318,8 @@ module.exports = {
   updateHeroImage,
   updateBackgroundImage,
   updateProjectImage,
-	deleteProjectImage,
-	getHeroImage,
-	getBackgroundImage,
-	getProjectImages
+  deleteProjectImage,
+  getHeroImage,
+  getBackgroundImage,
+  getProjectImages,
 };
